@@ -1,64 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Exercise 1 - Simple CRUD
 
-## About Laravel
+<hr>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+#### If you want to import the steam games library by link, you need to remove ```$json = File::get("resources/json/steam-games.json");``` and uncomment
+```
+/* 
+$json = http::get("https://raw.githubusercontent.com/Sadness-TJK/Changed-SteamGamesList-json/main/steam-games.json");
+*/
+```
+#### in the Steam_gamesSeeder.php file.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<hr>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### To perform an import from a .json file into a database, use the command - ```php artisan db:seed --class=Steam_gamesSeeder```
 
-## Learning Laravel
+#### This is what the database should look like after import
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+![](https://i.imgur.com/KviWGw5.png)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<hr>
 
-## Laravel Sponsors
+## Project files
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+<br>
 
-### Premium Partners
+### Migration file - database/migrations/games.php
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
 
-## Contributing
+```php
+return new class extends Migration
+{
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    public function up()
+    {
+        Schema::create('game', function (Blueprint $table) {
+            $table->id();
+            $table->string('appid');
+            $table->string('name');
+            $table->string('playtime_forever');
+            $table->string('img_icon_url');
+            $table->string('img_logo_url');
+            $table->boolean('has_community_visible_stats');
+            $table->timestamps();
 
-## Code of Conduct
+        });
+    }
+    
+    public function down()
+    {
+        Schema::dropIfExists('games');
+    }
+};
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Seeder file - database/seeders/Steam_gamesSeeder.php
 
-## Security Vulnerabilities
+```php
+class Steam_gamesSeeder extends Seeder
+{
+    public function run()
+    {
+        SteamGames::truncate();
+        /*
+        $json = http::get("https://raw.githubusercontent.com/Sadness-TJK/Changed-SteamGamesList-json/main/steam-games.json");
+        */
+        $json = File::get("resources/json/steam-games.json");
+        $Steam_Games_json = json_decode($json);
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+        foreach ($Steam_Games_json as $value) {
+            SteamGames::create([
+                "appid" => $value->appid,
+                "name" => $value->name,
+                "playtime_forever" => $value->playtime_forever,
+                "img_icon_url" => $value->img_icon_url,
+                "img_logo_url" => $value->img_logo_url,
+                "has_community_visible_stats" => $value->has_community_visible_stats??null,
+            ]);
+        }
+    }
+}
+```
 
-## License
+### Model File - Models/SteamGames.php
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```php
+class SteamGames extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'appid', 'name', 'playtime_forever', 'img_icon_url', 'img_logo_url', 'has_community_visible_stats',
+    ];
+
+}
+```
