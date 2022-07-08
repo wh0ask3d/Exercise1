@@ -13,7 +13,7 @@ $json = http::get("https://raw.githubusercontent.com/Sadness-TJK/Changed-SteamGa
 
 <hr>
 
-#### To perform an import from a .json file into a database, use the command - ```php artisan db:seed --class=Steam_gamesSeeder```
+#### To perform an import from a .json file into a database, use the command - ```php artisan db:seed --class=SteamGamesSeeder```
 
 #### This is what the database should look like after import
 
