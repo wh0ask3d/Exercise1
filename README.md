@@ -25,7 +25,7 @@ $json = http::get("https://raw.githubusercontent.com/Sadness-TJK/Changed-SteamGa
 
 <br>
 
-### Migration file - database/migrations/games.php
+### Migration file - database/migrations/2022_07_08_210437_create_games_table.php
 
 
 ```php
@@ -34,7 +34,7 @@ return new class extends Migration
 
     public function up()
     {
-        Schema::create('game', function (Blueprint $table) {
+        Schema::create('steamgames', function (Blueprint $table) {
             $table->id();
             $table->string('appid');
             $table->string('name');
@@ -46,22 +46,23 @@ return new class extends Migration
 
         });
     }
-    
+
     public function down()
     {
-        Schema::dropIfExists('games');
+        Schema::dropIfExists('steamgames');
     }
 };
+
 ```
 
-### Seeder file - database/seeders/Steam_gamesSeeder.php
+### Seeder file - database/seeders/SteamGamesSeeder.php
 
 ```php
-class Steam_gamesSeeder extends Seeder
+class SteamGamesSeeder extends Seeder
 {
     public function run()
     {
-        SteamGames::truncate();
+        steamgame::truncate();
         /*
         $json = http::get("https://raw.githubusercontent.com/Sadness-TJK/Changed-SteamGamesList-json/main/steam-games.json");
         */
@@ -69,7 +70,7 @@ class Steam_gamesSeeder extends Seeder
         $Steam_Games_json = json_decode($json);
 
         foreach ($Steam_Games_json as $value) {
-            SteamGames::create([
+            steamgame::create([
                 "appid" => $value->appid,
                 "name" => $value->name,
                 "playtime_forever" => $value->playtime_forever,
@@ -82,7 +83,7 @@ class Steam_gamesSeeder extends Seeder
 }
 ```
 
-### Model File - Models/SteamGames.php
+### Model File - Models/steamgames.php
 
 ```php
 class SteamGames extends Model
