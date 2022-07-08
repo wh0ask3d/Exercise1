@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('playtime_forever');
             $table->string('img_icon_url');
             $table->string('img_logo_url');
-            $table->boolean('has_community_visible_stats');
+            $table->boolean('has_community_visible_stats')->nullable();
             $table->timestamps();
 
         });
